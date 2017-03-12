@@ -1,0 +1,89 @@
+Write a computer program to simulate Round Robin scheduling.
+Due date March 30th in class. Bring in your code in class and demonstrate 
+
+Round Robin 
+Process arrives at different times with different service times. They have different arrival times. 
+Upon arrival, a process can be appended at the end of the ready queue, top of the queue, or right after the current process, which is in service at the time of arrival. You choose the option you would like to implement.
+
+Process will have:
+ID
+Service time
+Arrival Time
+As time goes on, processes will be picked up by the dispatcher one at a time from the ready queue and will be allowed to execute for one quantum
+Quantum will be a variable in your program. Use quantum = 0.
+Your program should be able to use any value for context switch, CS. Use CS = 0
+Your program should also have a variable to represent the simulated clock time
+
+Main program will call various subprograms as needed 
+If a process completes before the time quantum has been finished, do not waste the time just doing nothing. Let another process execute following RR algorithm.
+Your program will calculate in the following for all processes.
+
+-Start time
+-End time
+-IntitialWait time
+-TotalWait time
+-Turnaround time
+
+-Average Turnaround time
+
+
+
+Arrival time generation module:
+This module will generate inter-arrival times. Inter-arrival times will be within a range. The values will be in between the minimum (=4) and maximum (=8). I will show you in class how to generate arrival times from the inter-arrival times. 
+Service time generation module:
+This module will generate the service times of all the processes with a minimum of 2 and maximum of 5 
+
+
+
+
+
+Test cases:
+
+1. Test your RR program with the following set of processes and 
+
+  Service time        Arrival time
+75		0
+40 		10
+25		15
+20		80
+45	              90
+
+Produce the following for all the processes for quantum size of 0 and then 5
+
+-Start time
+-End time
+-IntitialWait time
+-TotalWait time
+-Turnaround time
+
+-Average Turnaround time
+
+
+2. Run your program for more general case with both arrival time  and service time generation modules with quantum size 1 and 3. Generate 1000 jobs and stop your simulation as soon as the 800th job is done. 
+
+
+
+
+
+
+RR final submission sheet 
+
+Name :                                              Section:
+
+1. Where is the new arriving process being appended in the queue?
+2. For each test case and quantum sizes print the following: 
+      a. First job to finish 
+      b.  For all the jobs to be finished print:
+-Start time
+-End time
+-IntitialWait time
+-TotalWait time
+-Turnaround time
+
+      c. Average Turnaround time
+
+
+
+3. Comments:
+           Issues you had and how it is resolved 
+
