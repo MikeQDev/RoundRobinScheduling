@@ -1,38 +1,58 @@
 import java.util.LinkedList;
+import java.util.Random;
 
 public class Scheduler {
-
-	private final int contextSwitchTime = 0;
-	private final int quantumSize = 1;
+	private static final int PROC_COUNT = 1000;
+	private final int CONTEXTSWITCHTIME = 0;
+	private final int QUANTUMSIZE = 3;
 
 	private int clockTime = 0;
 	private int curCtxSwitch = 0;
+	private int firstJobDone = -1;
 	private Process curProc;
-	private Process[] procs = { new Process(1, 75, 0), new Process(2, 40, 10), new Process(3, 25, 15),
-			new Process(4, 20, 80), new Process(5, 45, 90) };
+	private Process[] procs;
 	private LinkedList<Process> readyQueue = new LinkedList<Process>();
 	private int elapsedSquares = 0;
+	private boolean debug = false;
+	private boolean stopAfter800 = true;
 
 	public Scheduler() {
+		if (debug) {
+			procs = new Process[] { new Process(1, 75, 0), new Process(2, 40, 10), new Process(3, 25, 15),
+					new Process(4, 20, 80), new Process(5, 45, 90) };
+		} else {
+			procs = new Process[PROC_COUNT];
+			findProcesses();
+		}
 		while (true) {
 			if (clockTime == 0) {
 				checkNewProcs();
 				curProc = readyQueue.removeFirst();
 			}
-			if (contextSwitchTime == 0 && elapsedSquares == quantumSize) {
+			if (CONTEXTSWITCHTIME == 0 && elapsedSquares % QUANTUMSIZE == 0) {
+
 				System.out.println(clockTime + "\t-----CS-----");
 
 				if (curProc != null) {
 					readyQueue.addLast(curProc);
 					curProc = null;
 				}
-
-				if (readyQueue.isEmpty()) {
-					finishUp();
-					System.exit(0);
+				boolean allDone = true;
+				if (readyQueue.isEmpty()) { // nothing in ready queue
+					for (Process p : procs) {
+						if (!p.isDone()) {
+							allDone = false;
+							break;
+						}
+					} /// everything is done
+					if (allDone) {
+						finishUp();
+						System.exit(0);
+					}
+				} else {
+					curProc = readyQueue.removeFirst();
+					elapsedSquares = 0;
 				}
-				curProc = readyQueue.removeFirst();
-				elapsedSquares = 0;
 
 			} else {
 				while (curCtxSwitch != 0) {
@@ -47,28 +67,48 @@ public class Scheduler {
 					clockTime++;
 					// }
 					if (curCtxSwitch == 0) {
-						if (readyQueue.isEmpty()) {
-							finishUp();
-							System.exit(0);
+						boolean allDone = true;
+						if (readyQueue.isEmpty()) { // nothing in ready queue
+							for (Process p : procs) {
+								if (!p.isDone()) {
+									allDone = false;
+									break;
+								}
+							} /// everything is done
+							if (allDone) {
+								finishUp();
+								System.exit(0);
+							}
+						} else {
+
+							curProc = readyQueue.removeFirst();
+							elapsedSquares = 0;
 						}
-						curProc = readyQueue.removeFirst();
-						elapsedSquares = 0;
 					}
 				}
 			}
 			checkNewProcs();
 			if (curProc == null) {
 				System.out.println("Found null curProc - CSing");
-				curCtxSwitch = contextSwitchTime;
+				curCtxSwitch = CONTEXTSWITCHTIME;
 			} else if (curProc.work() == 1) {// done
-				curCtxSwitch = contextSwitchTime;
+
+				curCtxSwitch = CONTEXTSWITCHTIME;
 				if (curProc.getSvcTimeElapsed() == 1)
 					curProc.setStartTime(clockTime);
 				curProc.setEndTime(clockTime);
+				if(firstJobDone==-1){
+					firstJobDone=curProc.getPid();
+				}
 				System.out.println(clockTime + "\t" + curProc + " [TERMINATED]");
+				if (stopAfter800 && curProc.getPid() == 799) {
+					System.out.println("Job 800 finished!");
+					finishUp();
+					System.exit(0);
+				}
 				curProc = null;
-			} else if (elapsedSquares == quantumSize) {
-				curCtxSwitch = contextSwitchTime;
+			} else if (elapsedSquares == QUANTUMSIZE) {
+				curCtxSwitch = CONTEXTSWITCHTIME;
 				continue;
 			} else {
 				if (curProc.getSvcTimeElapsed() == 1)
@@ -96,14 +136,18 @@ public class Scheduler {
 
 	private void finishUp() {
 		System.out.println("Out of tasks to execute!");
+		
+		System.out.println("PID of first job done: "+firstJobDone);
 
-		boolean testCase = true;
+		boolean testCase = false;
 		if (!testCase)
 			System.out.println("PID\tiWait\ttWait\tTurnaround");
 		else
 			System.out.println("PID\tStart\tEnd\tiWait\ttWait\tTurnaround");
 		int avgTurnaround = 0;
 		for (Process p : procs) {
+			if (stopAfter800 && p.getPid()>=800)
+				break;
 			int turnaroundTime = p.getTurnaroundTime();
 
 			if (!testCase) {
@@ -115,12 +159,34 @@ public class Scheduler {
 						+ p.getInitialWaitTime() + "\t" + p.getTotalWaitTime() + "\t" + p.getTurnaroundTime());
 			}
 			avgTurnaround += turnaroundTime;
-			/*
-			 * -Start time -End time -IntitialWait time -TotalWait time
-			 * -Turnaround time
-			 */
 		}
-		System.out.println("Average turnaround time: " + ((double) avgTurnaround / procs.length));
+		if (!stopAfter800)
+			System.out.println("Average turnaround time: " + ((double) avgTurnaround / procs.length));
+		else
+			System.out.println("Average turnaround time: " + ((double) avgTurnaround / 800));
+
+	}
+
+	/*
+	 * This module will generate inter-arrival times. Inter-arrival times will
+	 * be within a range. The values will be in between the minimum (=4) and
+	 * maximum (=8). I will show you in class how to generate arrival times from
+	 * the inter-arrival times.
+	 */
+	private int generateTime(int min, int max) {
+		return (int) (min + (max - min + 1) * new Random().nextFloat());
+	}
+
+	private void findProcesses() {
+		for (int i = 0; i < procs.length; i++) {
+			int interarrival = generateTime(4, 8);
+			int svc = generateTime(2, 5);
+			if (i == 0) {
+				procs[i] = new Process(i, svc, 0);
+				continue;
+			}
+			procs[i] = new Process(i, svc, interarrival + procs[i - 1].getArrivalTime());
+		}
 	}
 
 	public static void main(String[] args) {
