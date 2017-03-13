@@ -3,7 +3,7 @@ import java.util.LinkedList;
 public class Scheduler {
 
 	private final int contextSwitchTime = 0;
-	private final int quantumSize = 5;
+	private final int quantumSize = 1;
 
 	private int clockTime = 0;
 	private int curCtxSwitch = 0;
@@ -19,11 +19,7 @@ public class Scheduler {
 				checkNewProcs();
 				curProc = readyQueue.removeFirst();
 			}
-			if (contextSwitchTime == 0 && elapsedSquares == quantumSize) { // cs
-																			// when
-																			// cs
-																			// =
-																			// 0
+			if (contextSwitchTime == 0 && elapsedSquares == quantumSize) {
 				System.out.println(clockTime + "\t-----CS-----");
 
 				if (curProc != null) {
@@ -90,37 +86,11 @@ public class Scheduler {
 	}
 
 	private void checkNewProcs() {
-		switch (clockTime) { // add to ready queue
-		case 0:
-			if (!procs[0].isServiced()) {
-				procs[0].setServiced();
-				readyQueue.addLast(procs[0]);
+		for (Process p : procs) {
+			if (p.getArrivalTime() == clockTime && !p.isServiced()) {
+				p.setServiced();
+				readyQueue.addLast(p);
 			}
-			break;
-		case 10:
-			if (!procs[1].isServiced()) {
-				procs[1].setServiced();
-				readyQueue.addLast(procs[1]);
-			}
-			break;
-		case 15:
-			if (!procs[2].isServiced()) {
-				procs[2].setServiced();
-				readyQueue.addLast(procs[2]);
-			}
-			break;
-		case 80:
-			if (!procs[3].isServiced()) {
-				procs[3].setServiced();
-				readyQueue.addLast(procs[3]);
-			}
-			break;
-		case 90:
-			if (!procs[4].isServiced()) {
-				procs[4].setServiced();
-				readyQueue.addLast(procs[4]);
-			}
-			break;
 		}
 	}
 
