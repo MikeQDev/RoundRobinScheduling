@@ -2,8 +2,8 @@ import java.util.LinkedList;
 
 public class Scheduler {
 
-	private final int contextSwitchTime = 3;
-	private final int quantumSize = 10;
+	private final int contextSwitchTime = 0;
+	private final int quantumSize = 5;
 
 	private int clockTime = 0;
 	private int curCtxSwitch = 0;
@@ -19,22 +19,45 @@ public class Scheduler {
 				checkNewProcs();
 				curProc = readyQueue.removeFirst();
 			}
-			while (curCtxSwitch != 0) {
+			if (contextSwitchTime == 0 && elapsedSquares == quantumSize) { // cs
+																			// when
+																			// cs
+																			// =
+																			// 0
+				System.out.println(clockTime + "\t-----CS-----");
+
 				if (curProc != null) {
 					readyQueue.addLast(curProc);
 					curProc = null;
 				}
-				checkNewProcs();
-				System.out.println(clockTime + "\t-----CS-----");
-				curCtxSwitch--;
-				clockTime++;
-				if (curCtxSwitch == 0) {
-					if (readyQueue.isEmpty()) {
-						finishUp();
-						System.exit(0);
+
+				if (readyQueue.isEmpty()) {
+					finishUp();
+					System.exit(0);
+				}
+				curProc = readyQueue.removeFirst();
+				elapsedSquares = 0;
+
+			} else {
+				while (curCtxSwitch != 0) {
+					if (curProc != null) {
+						readyQueue.addLast(curProc);
+						curProc = null;
 					}
-					curProc = readyQueue.removeFirst();
-					elapsedSquares = 0;
+					// if (contextSwitchTime != 0) {
+					checkNewProcs();
+					System.out.println(clockTime + "\t-----CS-----");
+					curCtxSwitch--;
+					clockTime++;
+					// }
+					if (curCtxSwitch == 0) {
+						if (readyQueue.isEmpty()) {
+							finishUp();
+							System.exit(0);
+						}
+						curProc = readyQueue.removeFirst();
+						elapsedSquares = 0;
+					}
 				}
 			}
 			checkNewProcs();
@@ -103,17 +126,31 @@ public class Scheduler {
 
 	private void finishUp() {
 		System.out.println("Out of tasks to execute!");
-		
-		System.out.println("PID\tiWait\ttWait\tTurnaround");
+
+		boolean testCase = true;
+		if (!testCase)
+			System.out.println("PID\tiWait\ttWait\tTurnaround");
+		else
+			System.out.println("PID\tStart\tEnd\tiWait\ttWait\tTurnaround");
 		int avgTurnaround = 0;
 		for (Process p : procs) {
-			int initWait = p.getInitialWaitTime();
-			int totalWait = p.getTotalWaitTime();
 			int turnaroundTime = p.getTurnaroundTime();
+
+			if (!testCase) {
+				int initWait = p.getInitialWaitTime();
+				int totalWait = p.getTotalWaitTime();
+				System.out.println(p.getPid() + "\t" + initWait + "\t" + totalWait + "\t" + turnaroundTime);
+			} else {
+				System.out.println(p.getPid() + "\t" + p.getStartTime() + "\t" + p.getEndTime() + "\t"
+						+ p.getInitialWaitTime() + "\t" + p.getTotalWaitTime() + "\t" + p.getTurnaroundTime());
+			}
 			avgTurnaround += turnaroundTime;
-			System.out.println(p.getPid() + "\t" + initWait + "\t" + totalWait + "\t" + turnaroundTime);
+			/*
+			 * -Start time -End time -IntitialWait time -TotalWait time
+			 * -Turnaround time
+			 */
 		}
-		System.out.println("Average turnaround time: "+((double)avgTurnaround/procs.length));
+		System.out.println("Average turnaround time: " + ((double) avgTurnaround / procs.length));
 	}
 
 	public static void main(String[] args) {
