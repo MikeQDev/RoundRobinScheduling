@@ -97,8 +97,8 @@ public class Scheduler {
 				if (curProc.getSvcTimeElapsed() == 1)
 					curProc.setStartTime(clockTime);
 				curProc.setEndTime(clockTime);
-				if(firstJobDone==-1){
-					firstJobDone=curProc.getPid();
+				if (firstJobDone == -1) {
+					firstJobDone = curProc.getPid();
 				}
 				System.out.println(clockTime + "\t" + curProc + " [TERMINATED]");
 				if (stopAfter800 && curProc.getPid() == 799) {
@@ -136,17 +136,19 @@ public class Scheduler {
 
 	private void finishUp() {
 		System.out.println("Out of tasks to execute!");
-		
-		System.out.println("PID of first job done: "+firstJobDone);
 
-		boolean testCase = false;
+		System.out.println("PID of first job done: " + firstJobDone);
+
+		boolean testCase = !debug;
 		if (!testCase)
 			System.out.println("PID\tiWait\ttWait\tTurnaround");
 		else
 			System.out.println("PID\tStart\tEnd\tiWait\ttWait\tTurnaround");
 		int avgTurnaround = 0;
+		int i = 0;
 		for (Process p : procs) {
-			if (stopAfter800 && p.getPid()>=800)
+			i++;
+			if (stopAfter800 && i > 800)
 				break;
 			int turnaroundTime = p.getTurnaroundTime();
 
@@ -155,8 +157,9 @@ public class Scheduler {
 				int totalWait = p.getTotalWaitTime();
 				System.out.println(p.getPid() + "\t" + initWait + "\t" + totalWait + "\t" + turnaroundTime);
 			} else {
-				System.out.println(p.getPid() + "\t" + p.getStartTime() + "\t" + p.getEndTime() + "\t"
-						+ p.getInitialWaitTime() + "\t" + p.getTotalWaitTime() + "\t" + p.getTurnaroundTime());
+				if (i <= 10 || i >= 790)
+					System.out.println(p.getPid() + "\t" + p.getStartTime() + "\t" + p.getEndTime() + "\t"
+							+ p.getInitialWaitTime() + "\t" + p.getTotalWaitTime() + "\t" + p.getTurnaroundTime());
 			}
 			avgTurnaround += turnaroundTime;
 		}
