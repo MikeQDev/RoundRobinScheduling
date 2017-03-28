@@ -14,7 +14,8 @@ public class Process2 {
 		this.arrivalTime = arrivalTime;
 	}
 
-	public void cleanup() {
+	public void cleanup(int clockTime) {
+		this.endTime = clockTime;
 		System.out.println("Process " + pid + " done!");
 	}
 
