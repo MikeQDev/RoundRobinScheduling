@@ -3,7 +3,7 @@ import java.util.LinkedList;
 public class OS {
 
 	private static int clockTime = 0;
-	private static int quantumTime = 5, csTime = 1;
+	private static int quantumTime = 5, csTime = 2;
 	private static LinkedList<Process2> allProcs = new LinkedList<Process2>();
 
 	private static LinkedList<Process2> queue = new LinkedList<Process2>();
@@ -19,7 +19,7 @@ public class OS {
 			checkNewProcs();
 			if (switchTimeRemaining != 0 && csTime != 0) {
 				switchTimeRemaining--;
-				System.out.println(clockTime + "\t---CSo---" + switchTimeRemaining);
+				System.out.println(clockTime + "\t---CS---");
 				clockTime++;
 				continue;
 			}
@@ -70,9 +70,9 @@ public class OS {
 				curProc.cleanup();
 				curProc = null;
 				return true;
-			} else {
-				return false;
-			}
+			} //else {
+				//return false;
+			//}
 		}
 
 		if (curProc != null && curProc.isDone()) {
