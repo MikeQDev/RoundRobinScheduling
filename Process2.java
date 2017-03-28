@@ -1,5 +1,5 @@
 
-public class Process {
+public class Process2 {
 	private final int pid;
 	private final int svcTimeTotal;
 	private final int arrivalTime;
@@ -7,28 +7,16 @@ public class Process {
 	private int svcTimeElapsed = 0;
 	private int startTime = -1;
 	private int endTime = -1;
-	private boolean isServiced = false;
 
-	public Process(int pid, int svcTimeTotal, int arrivalTime) {
+	public Process2(int pid, int svcTimeTotal, int arrivalTime) {
 		this.pid = pid;
 		this.svcTimeTotal = svcTimeTotal;
 		this.arrivalTime = arrivalTime;
-		// status = Status.READY;
 	}
 
-	public boolean isServiced() {
-		return isServiced;
+	public void cleanup() {
+		System.out.println("Process " + pid + " done!");
 	}
-
-	public void setServiced() {
-
-		if (!isServiced)
-			isServiced = true;
-	}
-
-	/*
-	 * public int interrupt() { return 0; }
-	 */
 
 	public int work() {
 		svcTimeElapsed += 1;
@@ -38,7 +26,13 @@ public class Process {
 	}
 
 	public boolean isDone() {
-		return svcTimeElapsed == svcTimeTotal;
+		if (svcTimeElapsed == svcTimeTotal)
+			return true;
+		return false;
+	}
+
+	public String getStatus() {
+		return svcTimeElapsed + "/" + svcTimeTotal;
 	}
 
 	public String toString() {

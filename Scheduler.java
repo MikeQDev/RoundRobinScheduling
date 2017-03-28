@@ -9,19 +9,19 @@ public class Scheduler {
 	private int clockTime = 0;
 	private int curCtxSwitch = 0;
 	private int firstJobDone = -1;
-	private Process curProc;
-	private Process[] procs;
-	private LinkedList<Process> readyQueue = new LinkedList<Process>();
+	private ProcessTEW curProc;
+	private ProcessTEW[] procs;
+	private LinkedList<ProcessTEW> readyQueue = new LinkedList<ProcessTEW>();
 	private int elapsedSquares = 0;
-	private boolean debug = false;
-	private boolean stopAfter800 = true;
+	private boolean debug = true;
+	private boolean stopAfter800 = false;
 
 	public Scheduler() {
 		if (debug) {
-			procs = new Process[] { new Process(1, 75, 0), new Process(2, 40, 10), new Process(3, 25, 15),
-					new Process(4, 20, 80), new Process(5, 45, 90) };
+			procs = new ProcessTEW[] { new ProcessTEW(1, 75, 0), new ProcessTEW(2, 40, 10), new ProcessTEW(3, 25, 15),
+					new ProcessTEW(4, 20, 80), new ProcessTEW(5, 45, 90) };
 		} else {
-			procs = new Process[PROC_COUNT];
+			procs = new ProcessTEW[PROC_COUNT];
 			findProcesses();
 		}
 		while (true) {
@@ -39,7 +39,7 @@ public class Scheduler {
 				}
 				boolean allDone = true;
 				if (readyQueue.isEmpty()) { // nothing in ready queue
-					for (Process p : procs) {
+					for (ProcessTEW p : procs) {
 						if (!p.isDone()) {
 							allDone = false;
 							break;
@@ -69,7 +69,7 @@ public class Scheduler {
 					if (curCtxSwitch == 0) {
 						boolean allDone = true;
 						if (readyQueue.isEmpty()) { // nothing in ready queue
-							for (Process p : procs) {
+							for (ProcessTEW p : procs) {
 								if (!p.isDone()) {
 									allDone = false;
 									break;
@@ -116,7 +116,7 @@ public class Scheduler {
 				System.out.println(clockTime + "\t" + curProc);
 			}
 			System.out.print(clockTime + "\tQUEUE:\t");
-			for (Process p : readyQueue) {
+			for (ProcessTEW p : readyQueue) {
 				System.out.print(p.getPid() + ",");
 			}
 			System.out.println();
@@ -126,7 +126,7 @@ public class Scheduler {
 	}
 
 	private void checkNewProcs() {
-		for (Process p : procs) {
+		for (ProcessTEW p : procs) {
 			if (p.getArrivalTime() == clockTime && !p.isServiced()) {
 				p.setServiced();
 				readyQueue.addLast(p);
@@ -146,7 +146,7 @@ public class Scheduler {
 			System.out.println("PID\tStart\tEnd\tiWait\ttWait\tTurnaround");
 		int avgTurnaround = 0;
 		int i = 0;
-		for (Process p : procs) {
+		for (ProcessTEW p : procs) {
 			i++;
 			if (stopAfter800 && i > 800)
 				break;
@@ -185,10 +185,10 @@ public class Scheduler {
 			int interarrival = generateTime(4, 8);
 			int svc = generateTime(2, 5);
 			if (i == 0) {
-				procs[i] = new Process(i, svc, 0);
+				procs[i] = new ProcessTEW(i, svc, 0);
 				continue;
 			}
-			procs[i] = new Process(i, svc, interarrival + procs[i - 1].getArrivalTime());
+			procs[i] = new ProcessTEW(i, svc, interarrival + procs[i - 1].getArrivalTime());
 		}
 	}
 
