@@ -1,5 +1,5 @@
 
-public class Process2 {
+public class Process {
 	private final int pid;
 	private final int svcTimeTotal;
 	private final int arrivalTime;
@@ -8,7 +8,7 @@ public class Process2 {
 	private int startTime = -1;
 	private int endTime = -1;
 
-	public Process2(int pid, int svcTimeTotal, int arrivalTime) {
+	public Process(int pid, int svcTimeTotal, int arrivalTime) {
 		this.pid = pid;
 		this.svcTimeTotal = svcTimeTotal;
 		this.arrivalTime = arrivalTime;
