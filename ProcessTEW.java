@@ -78,7 +78,7 @@ public class ProcessTEW {
 	}
 
 	public int getTotalWaitTime() {
-		return endTime - arrivalTime - svcTimeTotal;
+		return endTime - arrivalTime - svcTimeTotal + 1;
 	}
 
 	public int getInitialWaitTime() {

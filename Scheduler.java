@@ -1,10 +1,11 @@
+import java.awt.Container;
 import java.util.LinkedList;
 import java.util.Random;
 
 public class Scheduler {
 	private static final int PROC_COUNT = 1000;
 	private final int CONTEXTSWITCHTIME = 0;
-	private final int QUANTUMSIZE = 3;
+	private final int QUANTUMSIZE = 5;
 
 	private int clockTime = 0;
 	private int curCtxSwitch = 0;
@@ -13,8 +14,8 @@ public class Scheduler {
 	private ProcessTEW[] procs;
 	private LinkedList<ProcessTEW> readyQueue = new LinkedList<ProcessTEW>();
 	private int elapsedSquares = 0;
-	private boolean debug = true;
-	private boolean stopAfter800 = false;
+	private boolean debug = false;
+	private boolean stopAfter800 = true;
 
 	public Scheduler() {
 		if (debug) {
@@ -30,8 +31,8 @@ public class Scheduler {
 				curProc = readyQueue.removeFirst();
 			}
 			if (CONTEXTSWITCHTIME == 0 && elapsedSquares % QUANTUMSIZE == 0) {
-
-				System.out.println(clockTime + "\t-----CS-----");
+				if (CONTEXTSWITCHTIME != 0)
+					System.out.println(clockTime + "\t-----CS-----");
 
 				if (curProc != null) {
 					readyQueue.addLast(curProc);
@@ -140,10 +141,10 @@ public class Scheduler {
 		System.out.println("PID of first job done: " + firstJobDone);
 
 		boolean testCase = !debug;
-		if (!testCase)
-			System.out.println("PID\tiWait\ttWait\tTurnaround");
-		else
-			System.out.println("PID\tStart\tEnd\tiWait\ttWait\tTurnaround");
+		// if (testCase)
+		// System.out.println("PID\tiWait\ttWait\tTurnaround");
+		// else
+		System.out.println("PID\tStart\tEnd\tiWait\ttWait\tTurnaround");
 		int avgTurnaround = 0;
 		int i = 0;
 		for (ProcessTEW p : procs) {
@@ -152,21 +153,23 @@ public class Scheduler {
 				break;
 			int turnaroundTime = p.getTurnaroundTime();
 
-			if (!testCase) {
-				int initWait = p.getInitialWaitTime();
-				int totalWait = p.getTotalWaitTime();
-				System.out.println(p.getPid() + "\t" + initWait + "\t" + totalWait + "\t" + turnaroundTime);
-			} else {
-				if (i <= 10 || i >= 790)
-					System.out.println(p.getPid() + "\t" + p.getStartTime() + "\t" + p.getEndTime() + "\t"
-							+ p.getInitialWaitTime() + "\t" + p.getTotalWaitTime() + "\t" + p.getTurnaroundTime());
+			/*
+			 * if (!testCase) { int initWait = p.getInitialWaitTime(); int
+			 * totalWait = p.getTotalWaitTime(); System.out.println(p.getPid() +
+			 * "\t" + initWait + "\t" + totalWait + "\t" + turnaroundTime); }
+			 * else {
+			 */
+			if (i <= 10 || i >= 790) {
+				System.out.println(p.getPid() + "\t" + p.getStartTime() + "\t" + p.getEndTime() + "\t"
+						+ p.getInitialWaitTime() + "\t" + p.getTotalWaitTime() + "\t" + p.getTurnaroundTime());
 			}
 			avgTurnaround += turnaroundTime;
+
 		}
 		if (!stopAfter800)
 			System.out.println("Average turnaround time: " + ((double) avgTurnaround / procs.length));
 		else
-			System.out.println("Average turnaround time: " + ((double) avgTurnaround / 800));
+			System.out.println("Average turnaround time (/800): " + ((double) avgTurnaround / 800));
 
 	}
 
