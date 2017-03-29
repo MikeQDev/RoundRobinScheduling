@@ -1,29 +1,24 @@
 import java.util.LinkedList;
-import java.util.Random;
 
 public class OS {
 
 	private static int clockTime = 0;
-	private static int quantumTime = 5, csTime = 0;
-	private static LinkedList<Process> allProcs = new LinkedList<Process>();
+	private static int quantumTime = 1, csTime = 2;
+	private static LinkedList<Process2> allProcs = new LinkedList<Process2>();
 
-	private static LinkedList<Process> queue = new LinkedList<Process>();
-	private static Process curProc;
+	private static LinkedList<Process2> queue = new LinkedList<Process2>();
+	private static Process2 curProc;
 	private static int switchTimeRemaining = 0;
 	private static int quantumLeft = 0;
 	private static int firstJobDone = -1;
-	private static boolean stopAfter800 = true;
+	private static boolean stopAfter800 = false;
 
 	public static void main(String[] args) {
-		if (stopAfter800)
-			create800();
-		else
-			createTestProccesses();
+		createTestProccesses();
 		while (true) {
-
-			checkNewProcs();
-			if (clockTime >= 5000)
+			if (clockTime == 1000)
 				break;
+			checkNewProcs();
 			if (switchTimeRemaining != 0 && csTime != 0) {
 				switchTimeRemaining--;
 				System.out.println(clockTime + "\t---CS---");
@@ -31,7 +26,7 @@ public class OS {
 				continue;
 			}
 			if (needsProcessChange()) {
-				System.out.println(clockTime + "need proc change!");
+				System.out.println("need proc change!");
 				if (clockTime != 0 && csTime != 0) {
 					switchTimeRemaining = csTime;
 					System.out.println(clockTime + "\t---CS---");
@@ -40,24 +35,18 @@ public class OS {
 				curProc = getNextProcess();
 
 				// if (csTime != 0)
-				// clockTime++;
+				clockTime++;
 				// switchTimeRemaining--;
 				quantumLeft = quantumTime;
-
-				// if (csTime != 0)
-				// continue;
+				continue;
 			}
 
 			if (curProc == null) {
-				if (queue.isEmpty()) {
-					System.out.println(clockTime + " No processes in queue...");
-					clockTime++;
-					continue;
-				}
-				curProc = getNextProcess();
+				System.out.println(clockTime + " No processes in queue...");
+				clockTime++;
+				continue;
 
 			}
-
 			if (curProc.getSvcTimeElapsed() == 0) {
 				curProc.setStartTime(clockTime);
 			}
@@ -120,12 +109,12 @@ public class OS {
 		return false;
 	}
 
-	private static Process getNextProcess() {
+	private static Process2 getNextProcess() {
 		if (curProc != null)
 			queue.addLast(curProc);
 		if (queue.size() == 0)
 			return null;
-		Process p = queue.removeFirst();
+		Process2 p = queue.removeFirst();
 		return p;
 	}
 
@@ -138,23 +127,23 @@ public class OS {
 		 * allProcs.add(a); allProcs.add(b); allProcs.add(c); allProcs.add(d);
 		 */
 
-		Process[] procs = new Process[] { new Process(1, 75, 0), new Process(2, 40, 10), new Process(3, 25, 15),
-				new Process(4, 20, 80), new Process(5, 45, 90) };
-		for (Process p : procs) {
+		Process2[] procs = new Process2[] { new Process2(1, 75, 0), new Process2(2, 40, 10), new Process2(3, 25, 15),
+				new Process2(4, 20, 80), new Process2(5, 45, 90) };
+		for (Process2 p : procs) {
 			allProcs.add(p);
 		}
 	}
 
 	private static void printQueue() {
 		System.out.print("Queue: ");
-		for (Process p : queue) {
+		for (Process2 p : queue) {
 			System.out.print(p.getPid() + ",");
 		}
 		System.out.println();
 	}
 
 	private static void checkNewProcs() {
-		for (Process p : allProcs) {
+		for (Process2 p : allProcs) {
 			if (p.getArrivalTime() == clockTime) {
 				queue.add(p);
 				System.out.println("New proccess " + p.getPid() + " arrived in queue.");
@@ -167,74 +156,32 @@ public class OS {
 
 		System.out.println("PID of first job done: " + firstJobDone);
 
-	//	if (stopAfter800)
-			System.out.println("PID\tStart\tEnd\tiWait\ttWait\tTurnaround");
-	//	else
-		//	System.out.println("PID\tiWait\ttWait\tTurnaround");
-
+		System.out.println("PID\tiWait\ttWait\tTurnaround");
+		// System.out.println("PID\tStart\tEnd\tiWait\ttWait\tTurnaround");
 		int avgTurnaround = 0;
 		int i = 0;
-		for (Process p : allProcs) {
+		for (Process2 p : allProcs) {
 			i++;
 			if (stopAfter800 && i > 800)
 				break;
 			int turnaroundTime = p.getTurnaroundTime();
 
-			if (stopAfter800) {
-				if (i <= 10 || i >= 790) {
+			if (!stopAfter800) {
+				int initWait = p.getInitialWaitTime();
+				int totalWait = p.getTotalWaitTime();
+				System.out.println(p.getPid() + "\t" + initWait + "\t" + totalWait + "\t" + turnaroundTime);
+			} else {
+				if (i <= 10 || i >= 790)
 					System.out.println(p.getPid() + "\t" + p.getStartTime() + "\t" + p.getEndTime() + "\t"
 							+ p.getInitialWaitTime() + "\t" + p.getTotalWaitTime() + "\t" + p.getTurnaroundTime());
-
-				}
-			} else {
-
-			//	int initWait = p.getInitialWaitTime();
-			//	int totalWait = p.getTotalWaitTime();
-			//	System.out.println(p.getPid() + "\t" + initWait + "\t" + totalWait + "\t" + turnaroundTime);
-				System.out.println(p.getPid() + "\t" + p.getStartTime() + "\t" + p.getEndTime() + "\t"
-						+ p.getInitialWaitTime() + "\t" + p.getTotalWaitTime() + "\t" + p.getTurnaroundTime());
-
 			}
 			avgTurnaround += turnaroundTime;
 		}
 		if (!stopAfter800)
 			System.out.println("Average turnaround time: " + ((double) avgTurnaround / allProcs.size()));
 		else
-			System.out.println("Average turnaround time (/800): " + ((double) avgTurnaround / 800));
+			System.out.println("Average turnaround time: " + ((double) avgTurnaround / 800));
 
-	}
-
-	private static int generateTime(int min, int max) {
-		return (int) (min + (max - min + 1) * new Random().nextFloat());
-	}
-
-	private static void create800() {
-		Process lastProc = null;
-		for (int i = 0; i < 800; i++) {
-			Process p = null;
-			int interarrival = generateTime(4, 8);
-			int svc = generateTime(2, 5);
-			if (i == 0) {
-				p = new Process(i, svc, 0);
-				allProcs.add(p);
-				lastProc = p;
-				continue;
-			}
-
-			p = new Process(i, svc, interarrival + lastProc.getArrivalTime());
-
-			allProcs.add(p);
-			lastProc = p;
-		}
-
-		for (int i = 0; i < 15; i++) {
-			Process px = allProcs.get(i);
-			System.out.print(px.getPid() + ":" + px.getArrivalTime() + ",");
-		}
-		System.out.println();
-		/*
-		 * for(int i=0; i<100;i++) System.out.println(generateTime(2, 5));
-		 */
 	}
 
 }
