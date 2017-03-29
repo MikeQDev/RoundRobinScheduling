@@ -5,10 +5,10 @@ public class SchedulerInitialAttempt {
 	private final int quantumSize = 5;
 
 	private int clockTime;
-	private ProcessTEW curProc;
-	private ProcessTEW[] procs = { new ProcessTEW(1, 75, 0), new ProcessTEW(2, 40, 10), new ProcessTEW(3, 25, 15),
-			new ProcessTEW(4, 20, 80), new ProcessTEW(5, 45, 90) };
-	private LinkedList<ProcessTEW> readyQueue = new LinkedList<ProcessTEW>();
+	private Process1 curProc;
+	private Process1[] procs = { new Process1(1, 75, 0), new Process1(2, 40, 10), new Process1(3, 25, 15),
+			new Process1(4, 20, 80), new Process1(5, 45, 90) };
+	private LinkedList<Process1> readyQueue = new LinkedList<Process1>();
 
 	public SchedulerInitialAttempt() {
 		clockTime = 0;
@@ -34,7 +34,7 @@ public class SchedulerInitialAttempt {
 			}
 			}
 			// readyQueue;
-			for (ProcessTEW proc : readyQueue) {
+			for (Process1 proc : readyQueue) {
 				System.out.print(proc.getPid() + ",");
 			}
 			System.out.println();
@@ -43,7 +43,7 @@ public class SchedulerInitialAttempt {
 		}
 	}
 
-	private ProcessTEW contextSwitch() {
+	private Process1 contextSwitch() {
 		// System.out.println(clockTime+"\t----CS----");
 		if (curProc != null) {
 			// deallocate
